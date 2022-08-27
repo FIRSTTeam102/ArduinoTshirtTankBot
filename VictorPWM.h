@@ -13,6 +13,13 @@
 #ifndef HEADER_VICTOR
 #define HEADER_VICTOR
 
+// from https://github.com/wpilibsuite/allwpilib/blob/main/wpilibc/src/main/native/include/frc/motorcontrol/Victor.h
+#define PWM_MAX_BWD 1026
+#define PWM_MIN_BWD 1490
+#define PWM_STOP 1507
+#define PWM_MIN_FWD 1525
+#define PWM_MAX_FWD 2027
+
 #include <Servo.h>
 
 class VictorPWM {
@@ -27,12 +34,12 @@ class VictorPWM {
 			int pulseLength; // μs
 			if (speed < 0) {
 				// output from 1499 to 1000
-				pulseLength = (int) (1500 - fabs(speed) * 500);
+				pulseLength = (int) (PWM_MIN_BWD - fabs(speed) * (PWM_MIN_BWD - PWM_MAX_BWD));
 			} else if (speed > 0) {
 				// output from 1501 to 2000
-				pulseLength = (int) (1500 + speed * 500); 
+				pulseLength = (int) (PWM_MIN_FWD + speed * (PWM_MAX_FWD - PWM_MIN_FWD));
 			} else {
-				pulseLength = 1500;
+				pulseLength = PWM_STOP;
 			}
 			Serial.println(pulseLength);
 
