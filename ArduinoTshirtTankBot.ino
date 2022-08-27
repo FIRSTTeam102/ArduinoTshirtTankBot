@@ -1,7 +1,7 @@
-#include "VictorPWM.h"
+#include "SparkPWM.h"
 
-VictorPWM tankLeft{5};
-VictorPWM tankRight{6};
+SparkPWM tankLeft{5};
+SparkPWM tankRight{6};
 float tankLeftSpeed = 0.0;
 float tankRightSpeed = 0.0;
 
@@ -11,7 +11,7 @@ float tankRightSpeed = 0.0;
 #define BTN_RIGHT_BWD 13
 #define POT_SPEED A0
 
-#define DRIVE_SPEED_MIN 0.0
+#define DRIVE_SPEED_MIN -1.0
 #define DRIVE_SPEED_MAX 1.0
 float driveSpeed = 0.5; // adjustable with pot
 
@@ -31,7 +31,7 @@ void updateFloatFromSerial(float* val) {
 }
 
 // handles reading and setting the speed of the motor from 3-val rocker
-void updateMotorSpeed(VictorPWM* motor, float* spd, byte btnFwd, byte btnBwd) {
+void updateMotorSpeed(SparkPWM* motor, float* spd, byte btnFwd, byte btnBwd) {
 	if (!digitalRead(btnFwd)) *spd = driveSpeed;
 	else if (!digitalRead(btnBwd)) *spd = -1.0 * driveSpeed;
 	else *spd = 0.0;
@@ -42,12 +42,14 @@ void updateMotorSpeed(VictorPWM* motor, float* spd, byte btnFwd, byte btnBwd) {
 void loop() {
 	driveSpeed = analogRead(POT_SPEED) * (DRIVE_SPEED_MAX - DRIVE_SPEED_MIN) / 1024.0 + DRIVE_SPEED_MIN;
 
-	updateMotorSpeed(&tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD);
-	updateMotorSpeed(&tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD);
+//	updateMotorSpeed(&tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD);
+//	updateMotorSpeed(&tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD);
 
 //	updateFloatFromSerial(&tankLeftSpeed);
-//	tankLeft.setSpeed(tankLeftSpeed);
+	tankLeft.setSpeed(driveSpeed);
 
 	Serial.print("speed: L"); Serial.print(tankLeftSpeed);
 	Serial.print(" R"); Serial.println(tankRightSpeed);
+
+	delay(15);
 }
