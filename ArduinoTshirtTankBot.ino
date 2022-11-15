@@ -1,17 +1,27 @@
 #include <Servo.h>
 
+// pin mappings: https://docs.arduino.cc/hacking/hardware/PinMapping2560
+
+// controller inputs
+#define POT_DRIVE_SPEED A14
+#define BTN_LEFT_FWD 43
+#define BTN_LEFT_BWD 42
+#define BTN_RIGHT_FWD 41
+#define BTN_RIGHT_BWD 40
+#define BTN_LOAD 39
+#define BTN_FIRE 38
+
+// cannon (https://dylan-frc-docs.readthedocs.io/en/latest/_images/spikeRelay2Light.png)
+#define PIN_SOLENOID_LOAD 22 // spike m+
+#define PIN_SOLENOID_FIRE 23 // spike m-
+
+// tank drive (https://revrobotics.com/content/docs/REV-11-1200-UM.pdf)
 #define PIN_TANK_LEFT 5
 #define PIN_TANK_RIGHT 6
 Servo tankLeft;
 Servo tankRight;
 float tankLeftSpeed = 0.0;
 float tankRightSpeed = 0.0;
-
-#define BTN_LEFT_FWD 7
-#define BTN_LEFT_BWD 8
-#define BTN_RIGHT_FWD 12
-#define BTN_RIGHT_BWD 13
-#define POT_SPEED A0
 
 #define DRIVE_SPEED_MIN -1.0
 #define DRIVE_SPEED_MAX 1.0
@@ -72,11 +82,12 @@ void driveMotorSpeed(Servo motor, float *spd, byte btnFwd, byte btnBwd) {
 };
 
 void loop() {
-	driveSpeed = analogRead(POT_SPEED) * (DRIVE_SPEED_MAX - DRIVE_SPEED_MIN) / 1024.0 + DRIVE_SPEED_MIN;
+	driveSpeed = analogRead(POT_DRIVE_SPEED) * (DRIVE_SPEED_MAX - DRIVE_SPEED_MIN) / 1024.0 + DRIVE_SPEED_MIN;
 
 	driveMotorSpeed(tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD);
 	driveMotorSpeed(tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD);
 
+	// for debugging
 	// updateFloatFromSerial(&tankLeftSpeed);
 	// setSparkSpeed(tankLeft, driveSpeed);
 
