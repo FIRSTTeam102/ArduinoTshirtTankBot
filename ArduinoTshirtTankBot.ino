@@ -4,10 +4,10 @@
 
 // controller inputs
 #define POT_DRIVE_SPEED A14
-#define BTN_LEFT_FWD 43
-#define BTN_LEFT_BWD 42
-#define BTN_RIGHT_FWD 41
-#define BTN_RIGHT_BWD 40
+#define BTN_LEFT_FWD 42
+#define BTN_LEFT_BWD 43
+#define BTN_RIGHT_FWD 40
+#define BTN_RIGHT_BWD 41
 #define BTN_LOAD 39
 #define BTN_FIRE 38
 
@@ -23,20 +23,26 @@ Servo tankRight;
 float tankLeftSpeed = 0.0;
 float tankRightSpeed = 0.0;
 
-#define DRIVE_SPEED_MIN -1.0
+#define DRIVE_SPEED_MIN 0.0
 #define DRIVE_SPEED_MAX 1.0
-float driveSpeed = 0.5; // adjustable with pot
+float driveSpeed = 0.0; // adjustable with pot
 
 void setup() {
 	Serial.begin(9600);
-	tankLeft.attach(PIN_TANK_LEFT);
+
 	pinMode(PIN_TANK_LEFT, OUTPUT);
-	tankRight.attach(PIN_TANK_RIGHT);
+	tankLeft.attach(PIN_TANK_LEFT);
 	pinMode(PIN_TANK_RIGHT, OUTPUT);
+	tankRight.attach(PIN_TANK_RIGHT);
+	pinMode(PIN_SOLENOID_LOAD, OUTPUT);
+	pinMode(PIN_SOLENOID_FIRE, OUTPUT);
+
 	pinMode(BTN_LEFT_FWD, INPUT_PULLUP);
 	pinMode(BTN_LEFT_BWD, INPUT_PULLUP);
 	pinMode(BTN_RIGHT_FWD, INPUT_PULLUP);
 	pinMode(BTN_RIGHT_BWD, INPUT_PULLUP);
+	pinMode(BTN_LOAD, INPUT_PULLUP);
+	pinMode(BTN_FIRE, INPUT_PULLUP);
 }
 
 void updateFloatFromSerial(float *val) {
@@ -61,23 +67,17 @@ void updateFloatFromSerial(float *val) {
 void setSparkSpeed(Servo motor, float speed) {
 	speed = constrain(speed, -1.0, 1.0);
 	int pulse;
-	if (speed < 0) {
-		pulse = (int)(PWM_MIN_BWD - fabs(speed) * (PWM_MIN_BWD - PWM_MAX_BWD));
-	} else if (speed > 0) {
-		pulse = (int)(PWM_MIN_FWD + speed * (PWM_MAX_FWD - PWM_MIN_FWD));
-	} else
-		pulse = PWM_STOP;
+	if (speed < 0) pulse = (int)(PWM_MIN_BWD - fabs(speed) * (PWM_MIN_BWD - PWM_MAX_BWD));
+	else if (speed > 0) pulse = (int)(PWM_MIN_FWD + speed * (PWM_MAX_FWD - PWM_MIN_FWD));
+	else pulse = PWM_STOP;
 	motor.writeMicroseconds(pulse);
 }
 
 // handles reading and setting the speed of the motor from 3-val rocker
 void driveMotorSpeed(Servo motor, float *spd, byte btnFwd, byte btnBwd) {
-	if (!digitalRead(btnFwd))
-		*spd = driveSpeed;
-	else if (!digitalRead(btnBwd))
-		*spd = -1.0 * driveSpeed;
-	else
-		*spd = 0.0;
+	if (!digitalRead(btnFwd)) *spd = driveSpeed;
+	else if (!digitalRead(btnBwd)) *spd = -1.0 * driveSpeed;
+	else *spd = 0.0;
 	setSparkSpeed(motor, *spd);
 };
 
@@ -89,7 +89,8 @@ void loop() {
 
 	// for debugging
 	// updateFloatFromSerial(&tankLeftSpeed);
-	// setSparkSpeed(tankLeft, driveSpeed);
+	// setSparkSpeed(tankLeft, tankLeftSpeed);
+	// setSparkSpeed(tankRight, tankLeftSpeed);
 
 	Serial.print("speed: L");
 	Serial.print(tankLeftSpeed);
