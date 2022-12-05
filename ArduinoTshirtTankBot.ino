@@ -22,6 +22,8 @@ Servo tankLeft;
 Servo tankRight;
 float tankLeftSpeed = 0.0;
 float tankRightSpeed = 0.0;
+#define TANK_MULT_LEFT -1.0
+#define TANK_MULT_RIGHT 1.0
 
 #define DRIVE_SPEED_MIN 0.0
 #define DRIVE_SPEED_MAX 1.0
@@ -64,8 +66,8 @@ void updateFloatFromSerial(float *val) {
 #define PWM_STOP 1500
 #define PWM_MIN_FWD 1550
 #define PWM_MAX_FWD 2003
-void setSparkSpeed(Servo motor, float speed) {
-	speed = constrain(speed, -1.0, 1.0);
+void setSparkSpeed(Servo motor, float speed, float mult) {
+	speed = constrain(speed, -1.0, 1.0) * mult;
 	int pulse;
 	if (speed < 0) pulse = (int)(PWM_MIN_BWD - fabs(speed) * (PWM_MIN_BWD - PWM_MAX_BWD));
 	else if (speed > 0) pulse = (int)(PWM_MIN_FWD + speed * (PWM_MAX_FWD - PWM_MIN_FWD));
@@ -74,23 +76,23 @@ void setSparkSpeed(Servo motor, float speed) {
 }
 
 // handles reading and setting the speed of the motor from 3-val rocker
-void driveMotorSpeed(Servo motor, float *spd, byte btnFwd, byte btnBwd) {
+void driveMotorSpeed(Servo motor, float *spd, float mult, byte btnFwd, byte btnBwd) {
 	if (!digitalRead(btnFwd)) *spd = driveSpeed;
 	else if (!digitalRead(btnBwd)) *spd = -1.0 * driveSpeed;
 	else *spd = 0.0;
-	setSparkSpeed(motor, *spd);
+	setSparkSpeed(motor, *spd, mult);
 };
 
 void loop() {
 	driveSpeed = analogRead(POT_DRIVE_SPEED) * (DRIVE_SPEED_MAX - DRIVE_SPEED_MIN) / 1024.0 + DRIVE_SPEED_MIN;
 
-	driveMotorSpeed(tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD);
-	driveMotorSpeed(tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD);
+	driveMotorSpeed(tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD, TANK_MULT_LEFT);
+	driveMotorSpeed(tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD, TANK_MULT_RIGHT);
 
 	// for debugging
 	// updateFloatFromSerial(&tankLeftSpeed);
-	// setSparkSpeed(tankLeft, tankLeftSpeed);
-	// setSparkSpeed(tankRight, tankLeftSpeed);
+	// setSparkSpeed(tankLeft, tankLeftSpeed, TANK_MULT_LEFT);
+	// setSparkSpeed(tankRight, tankLeftSpeed, TANK_MULT_RIGHT);
 
 	Serial.print("speed: L");
 	Serial.print(tankLeftSpeed);
