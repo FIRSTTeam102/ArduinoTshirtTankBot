@@ -86,8 +86,8 @@ void driveMotorSpeed(Servo motor, float *spd, float mult, byte btnFwd, byte btnB
 void loop() {
 	driveSpeed = analogRead(POT_DRIVE_SPEED) * (DRIVE_SPEED_MAX - DRIVE_SPEED_MIN) / 1024.0 + DRIVE_SPEED_MIN;
 
-	driveMotorSpeed(tankLeft, &tankLeftSpeed, BTN_LEFT_FWD, BTN_LEFT_BWD, TANK_MULT_LEFT);
-	driveMotorSpeed(tankRight, &tankRightSpeed, BTN_RIGHT_FWD, BTN_RIGHT_BWD, TANK_MULT_RIGHT);
+	driveMotorSpeed(tankLeft, &tankLeftSpeed, TANK_MULT_LEFT, BTN_LEFT_FWD, BTN_LEFT_BWD);
+	driveMotorSpeed(tankRight, &tankRightSpeed, TANK_MULT_RIGHT, BTN_RIGHT_FWD, BTN_RIGHT_BWD);
 
 	// for debugging
 	// updateFloatFromSerial(&tankLeftSpeed);
